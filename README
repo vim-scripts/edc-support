@@ -1,0 +1,5 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=1702
+
+This vimball provides syntax highlighting and indentation for edc files, as well as embryo scripts embedded withing the edc files.
+
+It also provides an omni completion script, which will complete all the usual keywords/statements/labels appropriately, as well as complete part names and program names when applicable
