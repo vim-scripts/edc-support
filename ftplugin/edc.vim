@@ -16,3 +16,8 @@ setlocal formatoptions-=t formatoptions+=croql
 setlocal include=^\s*#\s*include
 setlocal efm=edje_cc:%s.\ %f:%l\ %m
 setlocal mp=edje_cc\ %
+
+if exists('&ofu')
+  setlocal ofu=edccomplete#Complete
+endif
+

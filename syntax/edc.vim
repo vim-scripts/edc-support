@@ -12,25 +12,25 @@ elseif exists("b:current_syntax")
 endif
 
 " A bunch of useful keywords
-syn keyword	edcStatement	images data fonts collections group
-syn keyword	edcStatement	part parts dragable description rel1 rel2
-syn keyword	edcStatement	text image font fill origin size tag
-syn keyword	edcStatement	programs program styles style base
-syn keyword 	edcStatement 	gradient spectra spectrum
-syn match	edcType		"+ + +;" contained 
+syn keyword	edcBlock	images data fonts collections group
+syn keyword	edcBlock	part parts dragable description rel1 rel2
+syn keyword	edcBlock	text font fill origin size tag
+syn keyword	edcBlock	programs program styles style base
+syn keyword 	edcBlock 	gradient spectra spectrum
+syn match	edcType		"+ + +;" contained
 
 syn keyword	edcLabel	item name min max type effect
 syn keyword	edcLabel	mouse_events repeat_events clip_to
 syn keyword	edcLabel	color_class text_class x y confine
 syn keyword	edcLabel	state visible step aspect fixed middle
-syn keyword	edcLabel	aspect_preference elipsis
+syn keyword	edcLabel	aspect_preference elipsis image
 syn keyword	edcLabel	relative offset to to_x to_y normal tween
 syn keyword	edcLabel	border color color2 color3 font size fit align
 syn keyword	edcLabel	signal source action transition in target after
 syn keyword	edcLabel	text smooth inherit
 syn keyword	edcLabel	spectrum angle spread
 
-syn keyword	edcConstant 	COMP RAW LOSSY 
+syn keyword	edcConstant 	COMP RAW LOSSY
 syn keyword	edcConstant 	TEXT IMAGE RECT TEXTBLOCK SWALLOW GRADIENT
 syn keyword	edcConstant 	NONE PLAIN OUTLINE SOFT_OUTLINE SHADOW
 syn keyword	edcConstant 	SOFT_SHADOW OUTLINE_SHADOW OUTLINE_SOFT_SHADOW
@@ -140,7 +140,7 @@ syn match	edcUserLabel	display "\I\i*" contained
 
 syn include 	@edcEmbryo 	syntax/embryo.vim
 unlet b:current_syntax
-syn region 	edcScript	matchgroup=edcScriptTag start="\<script\_s*{" end="}" contains=@edcEmbryo,edcScriptTag 
+syn region 	edcScript	matchgroup=edcScriptTag start="\<script\_s*{" end="}" contains=@edcEmbryo,edcScriptTag
 syn keyword     edcScriptTag    contained script
 
 if exists("edc_minlines")
@@ -191,8 +191,8 @@ if version >= 508 || !exists("did_edc_syn_inits")
   HiLink edcDefine		Macro
   HiLink edcIncluded		edcString
   HiLink edcError		Error
-  HiLink edcStatement		Statement
-  HiLink edcScriptTag		Statement
+  HiLink edcBlock		Function
+  HiLink edcScriptTag		Function
   HiLink edcPreCondit		PreCondit
   HiLink edcType		Type
   HiLink edcConstant		Constant
