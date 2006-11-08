@@ -20,10 +20,10 @@ function! edccomplete#Complete(findstart, base)
     let line = getline(lnum)
 
     if line !~ '\a\+'
-      let line = getline(prevnonblank(lnum))
+      let line = getline(prevnonblank(lnum - 1))
     endif
 
-    let b:scontext = matchstr(line, '\a\+')
+    let b:scontext = matchstr(line, '\w\+')
 
     return start
   else
@@ -44,6 +44,9 @@ function! edccomplete#Complete(findstart, base)
       elseif line =~ 'effect:\s*'
 	call edccomplete#AddKeyword(res, a:base, s:partEffects)
       endif
+      if line =~ 'image:\s*".\{-}"'
+	call edccomplete#AddKeyword(res, a:base, s:imageStorageMethod)
+      endif
 
     elseif b:scontext == 'dragable'
       call edccomplete#AddLabel(res, line, a:base, s:dragableLabel)
@@ -53,15 +56,22 @@ function! edccomplete#Complete(findstart, base)
       call edccomplete#AddStatement(res, line, a:base, s:descriptionStatement)
       if line =~ 'aspect_preference:\s*'
 	call edccomplete#AddKeyword(res, a:base, s:aspectPrefTypes)
-      elseif line =~ 'inherit:\s*"'
+      elseif line =~ 'inherit:\s*"\?'
 	call edccomplete#FindStates(res, a:base, 1)
       endif
 
-    elseif b:scontext == 'rel'
+    elseif b:scontext == 'rel1' || b:scontext == 'rel2'
       call edccomplete#AddLabel(res, line, a:base, s:relLabel)
+      if line =~ 'to\%(_[xy]\)\?:\s*"\?'
+	call edccomplete#FindNamesIn(res, a:base, 'parts')
+      endif
 
     elseif b:scontext == 'image'
       call edccomplete#AddLabel(res, line, a:base, s:imageLabel)
+      call edccomplete#AddStatement(res, line, a:base, s:imageStatement)
+      if line =~ 'image:\s*".\{-}"'
+	call edccomplete#AddKeyword(res, a:base, s:imageStorageMethod)
+      endif
 
     elseif b:scontext == 'fill'
       call edccomplete#AddLabel(res, line, a:base, s:fillLabel)
@@ -72,31 +82,43 @@ function! edccomplete#Complete(findstart, base)
 
     elseif b:scontext == 'text'
       call edccomplete#AddLabel(res, line, a:base, s:textLabel)
+      call edccomplete#AddStatement(res, line, a:base, s:textStatement)
 
     elseif b:scontext == 'program'
       call edccomplete#AddLabel(res, line, a:base, s:programLabel)
       call edccomplete#AddStatement(res, line, a:base, s:programStatement)
       if line =~ 'transition:\s*'
 	call edccomplete#AddKeyword(res, a:base, s:transitionTypes)
-      elseif line =~ 'STATE_SET \s*"'
+      elseif line =~ 'STATE_SET\s*"\?'
 	call edccomplete#FindStates(res, a:base, 0)
       elseif line =~ 'action:\s*'
 	call edccomplete#AddKeyword(res, a:base, s:actionTypes)
-      elseif line =~ 'target:\s*"'
+      elseif line =~ 'target:\s*"\?'
 	call edccomplete#FindNamesIn(res, a:base, 'parts')
-      elseif line =~ 'after:\s*"'
+      elseif line =~ 'after:\s*"\?'
 	call edccomplete#FindNamesIn(res, a:base, 'programs')
       endif
 
     elseif b:scontext == 'programs'
+      call edccomplete#AddLabel(res, line, a:base, s:programsLabel)
       call edccomplete#AddStatement(res, line, a:base, s:programsStatement)
+      if line =~ 'image:\s*".\{-}"'
+	call edccomplete#AddKeyword(res, a:base, s:imageStorageMethod)
+      endif
 
     elseif b:scontext == 'group'
       call edccomplete#AddLabel(res, line, a:base, s:groupLabel)
       call edccomplete#AddStatement(res, line, a:base, s:groupStatement)
+      if line =~ 'image:\s*".\{-}"'
+	call edccomplete#AddKeyword(res, a:base, s:imageStorageMethod)
+      endif
 
     elseif b:scontext == 'parts'
+      call edccomplete#AddLabel(res, line, a:base, s:partsLabel)
       call edccomplete#AddStatement(res, line, a:base, s:partsStatement)
+      if line =~ 'image:\s*".\{-}"'
+	call edccomplete#AddKeyword(res, a:base, s:imageStorageMethod)
+      endif
 
     elseif b:scontext == 'data'
       call edccomplete#AddLabel(res, line, a:base, s:dataLabel)
@@ -114,6 +136,18 @@ function! edccomplete#Complete(findstart, base)
       call edccomplete#AddLabel(res, line, a:base, s:gradientLabel)
       call edccomplete#AddStatement(res, line, a:base, s:gradientStatement)
 
+    elseif b:scontext == 'styles'
+      call edccomplete#AddStatement(res, line, a:base, s:stylesStatement)
+
+    elseif b:scontext == 'style'
+      call edccomplete#AddLabel(res, line, a:base, s:styleLabel)
+
+    elseif b:scontext == 'color_classes'
+      call edccomplete#AddStatement(res, line, a:base, s:color_classesStatement)
+
+    elseif b:scontext == 'color_class'
+      call edccomplete#AddLabel(res, line, a:base, s:color_classLabel)
+
     elseif b:scontext == 'images'
       call edccomplete#AddLabel(res, line, a:base, s:imagesLabel)
       if line =~ 'image:\s*".\{-}"'
@@ -121,7 +155,11 @@ function! edccomplete#Complete(findstart, base)
       endif
 
     elseif b:scontext == 'collections'
+      call edccomplete#AddLabel(res, line, a:base, s:collectionsLabel)
       call edccomplete#AddStatement(res, line, a:base, s:collectionsStatement)
+      if line =~ 'image:\s*".\{-}"'
+	call edccomplete#AddKeyword(res, a:base, s:imageStorageMethod)
+      endif
 
     elseif strlen(b:scontext) == 0
       call edccomplete#AddStatement(res, line, a:base, s:topStatement)
@@ -237,26 +275,26 @@ function! edccomplete#FindNamesIn(res, base, str)
   endfor
 endfunction
 
-function! Sdebug(str)
-  echo a:str
-  sleep 1
-endfunction
-
 " part
 let s:partLabel = {
       \ 'name': 		'"string"',
-      \ 'clip_to':		'"string"',
-      \ 'color_class':		'"string"',
-      \ 'text_class':		'"string"',
       \ 'type':			'"keyword"',
       \ 'effect':		'"keyword"',
       \ 'mouse_events':		'"bool"',
       \ 'repeat_events':	'"bool"',
+      \ 'clip_to':		'"string"',
+      \ 'image':		'"string" "keyword"',
+      \ 'font':			'"string" "string"',
       \ }
-
 let s:partStatement = [
       \ 'dragable',
+      \ 'images',
+      \ 'fonts',
       \ 'description',
+      \ 'styles',
+      \ 'color_classes',
+      \ 'program',
+      \ 'programs',
       \ ]
 
 " dragable
@@ -264,6 +302,7 @@ let s:dragableLabel = {
       \ 'x':		'"bool" "int" "int"',
       \ 'y':		'"bool" "int" "int"',
       \ 'confine':	'"string"',
+      \ 'events':	'"string"',
       \ }
 
 " description
@@ -272,14 +311,17 @@ let s:descriptionLabel = {
       \ 'inherit':		'"string" "float"',
       \ 'visible':		'"bool"',
       \ 'align':		'"float" "float"',
+      \ 'fixed': 		'"float" "float"',
       \ 'min':			'"int" "int"',
       \ 'max':			'"int" "int"',
       \ 'step':			'"int" "int"',
       \ 'aspect':		'"float" "float"',
       \ 'aspect_preference':	'"keyword"',
+      \ 'color_class':		'"string"',
       \ 'color':		'"int" "int" "int" "int"',
       \ 'color2':		'"int" "int" "int" "int"',
       \ 'color3':		'"int" "int" "int" "int"',
+      \ 'font':			'"string" "string"',
       \ }
 let s:descriptionStatement = [
       \ 'rel1',
@@ -288,6 +330,12 @@ let s:descriptionStatement = [
       \ 'fill',
       \ 'text',
       \ 'gradient',
+      \ 'images',
+      \ 'fonts',
+      \ 'styles',
+      \ 'color_classes',
+      \ 'program',
+      \ 'programs',
       \ ]
 
 " rel
@@ -300,7 +348,11 @@ let s:relLabel = {
       \ }
 
 " image
+let s:imageStatement = [
+      \ 'images',
+      \ ]
 let s:imageLabel = {
+      \ 'image':	'"string" "keyword"',
       \ 'normal':	'"string"',
       \ 'tween':	'"string"',
       \ 'border':	'"int" "int" "int" "int"',
@@ -310,6 +362,8 @@ let s:imageLabel = {
 " fill
 let s:fillLabel = {
       \ 'smooth':	'"bool"',
+      \ 'angle':	'"0-360"',
+      \ 'spread':	'"bool"',
       \ }
 let s:fillStatement = [
       \ 'origin',
@@ -324,13 +378,21 @@ let s:fillInnerStatement = {
 " text
 let s:textLabel = {
       \ 'text':		'"string"',
+      \ 'text_class':	'"string"',
       \ 'font':		'"string"',
+      \ 'style':	'"string"',
       \ 'size':		'"int"',
       \ 'fit':		'"bool" "bool"',
       \ 'min':		'"bool" "bool"',
+      \ 'max':		'"bool" "bool"',
       \ 'align':	'"float" "float"',
       \ 'elipsis':	'"float"',
+      \ 'source':	'"string"',
+      \ 'text_source':	'"string"',
       \ }
+let s:textStatement = [
+      \ 'fonts',
+      \ ]
 
 " program
 let s:programLabel = {
@@ -341,6 +403,7 @@ let s:programLabel = {
       \ 'transition':	'"keyword" "float"',
       \ 'target':	'"string"',
       \ 'after':	'"string"',
+      \ 'in':		'"float" "float"',
       \ }
 let s:programStatement = [
       \ 'script',
@@ -348,27 +411,51 @@ let s:programStatement = [
 
 
 " programs
+let s:programsLabel = {
+      \ 'image':	'"string" "keyword"',
+      \ 'font':		'"string" "string"',
+      \ }
 let s:programsStatement = [
+      \ 'images',
+      \ 'fonts',
       \ 'program',
       \ ]
 
 " group
 let s:groupLabel = {
       \ 'name':		'"string"',
+      \ 'alias':	'"string"',
       \ 'min':		'"int" "int"',
       \ 'max':		'"int" "int"',
+      \ 'image':	'"string" "keyword"',
+      \ 'font':		'"string" "string"',
       \ }
 let s:groupStatement = [
       \ 'data',
       \ 'script',
       \ 'parts',
+      \ 'images',
+      \ 'fonts',
+      \ 'styles',
+      \ 'color_classes',
+      \ 'program',
       \ 'programs',
       \ ]
 
 " parts
 let s:partsStatement = [
+      \ 'images',
+      \ 'fonts',
       \ 'part',
+      \ 'styles',
+      \ 'color_classes',
+      \ 'program',
+      \ 'programs',
       \ ]
+let s:partsLabel = {
+      \ 'image':	'"string" "keyword"',
+      \ 'font':		'"string" "string"',
+      \ }
 
 " data
 let s:dataLabel = {
@@ -388,7 +475,15 @@ let s:imagesLabel = {
 "collections
 let s:collectionsStatement = [
       \ 'group',
+      \ 'images',
+      \ 'fonts',
+      \ 'styles',
+      \ 'color_classes',
       \ ]
+let s:collectionsLabel = {
+      \ 'image':	'"string" "keyword"',
+      \ 'font':		'"string" "string"',
+      \ }
 
 " spectra
 let s:spectraStatement = [
@@ -409,12 +504,38 @@ let s:gradientStatement = [
       \ 'rel2',
       \ ]
 
+" styles
+let s:stylesStatement = [
+      \ 'style',
+      \ ]
+" style
+let s:styleLabel = {
+      \ 'name':		'"string"',
+      \ 'base': 	'"string"',
+      \ 'tag': 		'"string"',
+      \ }
+
+" color_classes
+let s:color_classesStatement = [
+      \ 'color_class',
+      \ ]
+" color_class
+let s:color_classLabel = {
+      \ 'name':		'"string"',
+      \ 'color':	'"int" "int" "int" "int"',
+      \ 'color2':	'"int" "int" "int" "int"',
+      \ 'color3':	'"int" "int" "int" "int"',
+      \ }
+
 " toplevel
 let s:topStatement = [
       \ 'fonts',
       \ 'images',
       \ 'data',
       \ 'collections',
+      \ 'spectra',
+      \ 'styles',
+      \ 'color_classes',
       \ ]
 
 " images image storage method

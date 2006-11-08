@@ -12,23 +12,25 @@ elseif exists("b:current_syntax")
 endif
 
 " A bunch of useful keywords
-syn keyword	edcBlock	images data fonts collections group
-syn keyword	edcBlock	part parts dragable description rel1 rel2
-syn keyword	edcBlock	text font fill origin size tag
-syn keyword	edcBlock	programs program styles style base
-syn keyword 	edcBlock 	gradient spectra spectrum
-syn match	edcType		"+ + +;" contained
+syn keyword	edcBlock	images data fonts collections group contained
+syn keyword	edcBlock	part parts dragable description contained
+syn keyword	edcBlock	text font fill origin size image contained
+syn keyword	edcBlock	programs program styles style contained
+syn keyword 	edcBlock 	gradient spectra spectrum contained
+syn keyword 	edcBlock 	color_classes color_class rel1 rel2 contained
 
-syn keyword	edcLabel	item name min max type effect
-syn keyword	edcLabel	mouse_events repeat_events clip_to
-syn keyword	edcLabel	color_class text_class x y confine
-syn keyword	edcLabel	state visible step aspect fixed middle
-syn keyword	edcLabel	aspect_preference elipsis image
-syn keyword	edcLabel	relative offset to to_x to_y normal tween
-syn keyword	edcLabel	border color color2 color3 font size fit align
-syn keyword	edcLabel	signal source action transition in target after
-syn keyword	edcLabel	text smooth inherit
-syn keyword	edcLabel	spectrum angle spread
+syn keyword	edcLabel	item name alias min max type effect contained
+syn keyword	edcLabel	mouse_events repeat_events clip_to contained
+syn keyword	edcLabel	x y confine events contained
+syn keyword	edcLabel	state visible step aspect fixed middle contained
+syn keyword	edcLabel	aspect_preference elipsis image contained
+syn keyword	edcLabel	relative offset to to_x to_y contained
+syn keyword	edcLabel	border color color2 color3 font size contained
+syn keyword	edcLabel	signal source action transition in contained
+syn keyword	edcLabel	target after fit align contained
+syn keyword	edcLabel	text smooth inherit tag base style contained
+syn keyword	edcLabel	text_source color_class text_class contained
+syn keyword	edcLabel	spectrum angle spread normal tween contained
 
 syn keyword	edcConstant 	COMP RAW LOSSY
 syn keyword	edcConstant 	TEXT IMAGE RECT TEXTBLOCK SWALLOW GRADIENT
@@ -42,6 +44,8 @@ syn keyword	edcConstant	"default"
 
 syn keyword	edcTodo		contained TODO FIXME XXX
 
+syn match 	edcLabelMatch 	"\w\+:" contains=edcLabel
+syn match 	edcBlockMatch 	"\w\+\_s*{" contains=edcBlock
 " edcCommentGroup allows adding matches for special things in comments
 syn cluster	edcCommentGroup	contains=edcTodo
 
@@ -148,7 +152,7 @@ if exists("edc_minlines")
 else
   let b:edc_minlines = 50	" #if 0 constructs can be long
 endif
-"exec "syn sync ccomment edcComment minlines=" . b:edc_minlines
+exec "syn sync ccomment edcComment minlines=" . b:edc_minlines
 "syn sync fromstart
 
 " Define the default highlighting.
@@ -194,7 +198,6 @@ if version >= 508 || !exists("did_edc_syn_inits")
   HiLink edcBlock		Function
   HiLink edcScriptTag		Function
   HiLink edcPreCondit		PreCondit
-  HiLink edcType		Type
   HiLink edcConstant		Constant
   HiLink edcCommentString	edcString
   HiLink edcComment2String	edcString
