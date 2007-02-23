@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language:	EDC
 " Maintainer:	Viktor Kojouharov
-" Last Change:	2006 10 06
+" Last Change:	2007 02 24
 
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
@@ -46,6 +46,7 @@ syn keyword	edcTodo		contained TODO FIXME XXX
 
 syn match 	edcLabelMatch 	"\w\+:" contains=edcLabel
 syn match 	edcBlockMatch 	"\w\+\_s*{" contains=edcBlock
+syn match 	edcBlockMatch 	"\w\+\.\a"me=e-2 contains=edcBlock
 " edcCommentGroup allows adding matches for special things in comments
 syn cluster	edcCommentGroup	contains=edcTodo
 

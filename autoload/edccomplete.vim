@@ -1,31 +1,59 @@
+" Vim completion script
+" Language:	EDC
+" Maintainer:	Viktor Kojouharov
+" Last Change:	2007 02 24
+
 function! edccomplete#Complete(findstart, base)
   if a:findstart
     " locate the start of the word
     let line = getline('.')
     let start = col('.') - 1
     let compl_begin = col('.') - 2
-    if line =~ ':'
+    let lastword = -1
+    if line =~ ':' && line !~ '\.'
       while start > 0 && (line[start - 1] =~ '\k' || line[start - 1] =~ '"')
 	let start -= 1
       endwhile
     else
-      while start > 0 && line[start - 1] =~ '\k'
-	let start -= 1
+      while start > 0
+	if line[start - 1] =~ '\k'
+	  let start -= 1
+	elseif line[start - 1] =~ '\.'
+	  if lastword == -1
+	    let lastword = start - 2
+	  endif
+	  let start -= 1
+	else
+	  break
+	endif
       endwhile
     endif
     let b:compl_context = getline('.')[0:compl_begin]
 
-    let startpos = searchpair('{', '', '}', 'bnW')
-    let lnum = startpos
-    let line = getline(lnum)
+    if lastword == -1
+      let ppe = searchpos('\.', 'bcn')
+      let pps = searchpos('\w\+\.', 'bcn')
+      if ppe != [0, 0] && pps[0] == ppe[0] && pps[1] <= ppe[1] && pps[0] == line('.')
+	let b:scontext = line[pps[1] -1 : ppe[1] - 2]
+	return start
+      endif
 
-    if line !~ '\a\+'
-      let line = getline(prevnonblank(lnum - 1))
+      let startpos = searchpair('{', '', '}', 'bnW')
+      let lnum = startpos
+      let line = getline(lnum)
+
+      if line !~ '\a\+'
+	let line = getline(prevnonblank(lnum - 1))
+      endif
+
+      let b:scontext = matchstr(line, '\w\+')
+
+      return start
+    else
+      let b:scontext = line[start : lastword]
+
+      return lastword + 2
     endif
-
-    let b:scontext = matchstr(line, '\w\+')
-
-    return start
   else
     " find months matching with "a:base"
     let res = []

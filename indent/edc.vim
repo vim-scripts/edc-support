@@ -1,7 +1,7 @@
 " Vim indent file
 " Language:         EDC
 " Maintainer:       Viktor Kojouharov
-" Latest Revision:  2006-10-29
+" Latest Revision:  2007 02 24
 
 if exists("b:did_indent")
   finish
@@ -63,10 +63,8 @@ endfunction
 
 function GetEDCIndent()
   let line = getline(v:lnum)
-  if line =~ '^\s*\*' || line =~ '^\s*//'
+  if line =~ '^\s*\*' || line =~ '^\s*//' || line =~ '^\s*}'
     return cindent(v:lnum)
-  elseif line =~ '^\s*}'
-    return indent(v:lnum) - &sw
   endif
 
   let pnum = s:prevnonblanknoncomment(v:lnum - 1)
