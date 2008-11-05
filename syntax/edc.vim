@@ -21,22 +21,25 @@ syn keyword 	edcBlock 	color_classes color_class rel1 rel2 contained
 
 syn keyword	edcLabel	item name alias min max type effect contained
 syn keyword	edcLabel	mouse_events repeat_events clip_to contained
-syn keyword	edcLabel	x y confine events contained
+syn keyword	edcLabel	x y confine events contained scale
+syn keyword	edcLabel	ignore_flags precise_is_inside pointer_mode
+syn keyword	edcLabel	use_alternate_font_metrics entry_mode multiline
+syn keyword	edcLabel	source source2 source3 source4 source5 source6
 syn keyword	edcLabel	state visible step aspect fixed middle contained
 syn keyword	edcLabel	aspect_preference elipsis image contained
 syn keyword	edcLabel	relative offset to to_x to_y contained
 syn keyword	edcLabel	border color color2 color3 font size contained
-syn keyword	edcLabel	signal source action transition in contained
+syn keyword	edcLabel	signal action transition in contained
 syn keyword	edcLabel	target after fit align contained
 syn keyword	edcLabel	text smooth inherit tag base style contained
 syn keyword	edcLabel	text_source color_class text_class contained
 syn keyword	edcLabel	spectrum angle spread normal tween contained
 
-syn keyword	edcConstant 	COMP RAW LOSSY
-syn keyword	edcConstant 	TEXT IMAGE RECT TEXTBLOCK SWALLOW GRADIENT
+syn keyword	edcConstant 	COMP RAW LOSSY NONE ON_HOLD AUTOGRAB NOGRAB
+syn keyword	edcConstant 	TEXT IMAGE RECT TEXTBLOCK SWALLOW GRADIENT GROUP
 syn keyword	edcConstant 	NONE PLAIN OUTLINE SOFT_OUTLINE SHADOW
 syn keyword	edcConstant 	SOFT_SHADOW OUTLINE_SHADOW OUTLINE_SOFT_SHADOW
-syn keyword	edcConstant 	STATE_SET ACTION_STOP SIGNAL_EMIT
+syn keyword	edcConstant 	STATE_SET ACTION_STOP SIGNAL_EMIT FOCUS_SET
 syn keyword	edcConstant	DRAG_VAL_SET DRAG_VAL_STEP DRAG_VAL_PAGE
 syn keyword	edcConstant	LINEAR SINUSOIDAL ACCELERATE DECELERATE
 syn keyword	edcConstant	VERTICAL HORIZONTAL BOTH

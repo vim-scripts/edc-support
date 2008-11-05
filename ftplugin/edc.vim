@@ -19,5 +19,6 @@ setlocal mp=edje_cc\ %
 
 if exists('&ofu')
   setlocal ofu=edccomplete#Complete
+  setlocal cfu=edccomplete#Complete
 endif
 

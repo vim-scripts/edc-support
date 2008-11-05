@@ -71,6 +71,10 @@ function! edccomplete#Complete(findstart, base)
 	call edccomplete#AddKeyword(res, a:base, s:partTypes)
       elseif line =~ 'effect:\s*'
 	call edccomplete#AddKeyword(res, a:base, s:partEffects)
+      elseif line =~ 'ignore_flags:\s*'
+	call edccomplete#AddKeyword(res, a:base, s:partIgnoreFlags)
+      elseif line =~ 'pointer_mode:\s*'
+	call edccomplete#AddKeyword(res, a:base, s:partPointerMode)
       endif
       if line =~ 'image:\s*".\{-}"'
 	call edccomplete#AddKeyword(res, a:base, s:imageStorageMethod)
@@ -305,14 +309,20 @@ endfunction
 
 " part
 let s:partLabel = {
-      \ 'name': 		'"string"',
-      \ 'type':			'"keyword"',
-      \ 'effect':		'"keyword"',
-      \ 'mouse_events':		'"bool"',
-      \ 'repeat_events':	'"bool"',
-      \ 'clip_to':		'"string"',
-      \ 'image':		'"string" "keyword"',
-      \ 'font':			'"string" "string"',
+      \ 'name': 		        '"string"',
+      \ 'type':			        '"keyword"',
+      \ 'effect':		        '"keyword"',
+      \ 'ignore_flags':		        '"keyword" ...',
+      \ 'pointer_mode':		        '"keyword"',
+      \ 'mouse_events':		        '"bool"',
+      \ 'repeat_events':	        '"bool"',
+      \ 'scale':	                '"bool"',
+      \ 'precise_is_inside':	        '"bool"',
+      \ 'use_alternate_font_metrics':	'"bool"',
+      \ 'clip_to':		        '"string"',
+      \ 'source':		        '"string"',
+      \ 'image':		        '"string" "keyword"',
+      \ 'font':			        '"string" "string"',
       \ }
 let s:partStatement = [
       \ 'dragable',
@@ -581,6 +591,7 @@ let s:partTypes = {
       \ 'TEXTBLOCK':	'',
       \ 'SWALLOW':	'',
       \ 'GRADIENT':	'',
+      \ 'GROUP':	'',
       \ }
 " part effects
 let s:partEffects = {
@@ -592,6 +603,19 @@ let s:partEffects = {
       \ 'SOFT_SHADOW':		'',
       \ 'OUTLINE_SHADOW':	'',
       \ 'OUTLINE_SOFT_SHADOW':	'',
+      \ 'FAR_SHADOW':	'',
+      \ 'FAR_SOFT_SHADOW':	'',
+      \ 'GLOW':	'',
+      \ }
+" part ignore flags 
+let s:partIgnoreFlags = {
+      \ 'NONE':	        '',
+      \ 'ON_HOLD':	'',
+      \ }
+" part pointer mode
+let s:partPointerMode = {
+      \ 'AUTOGRAB':     '',
+      \ 'NOGRAB':	'',
       \ }
 
 " aspect_preference types
@@ -616,4 +640,5 @@ let s:actionTypes = {
       \ 'DRAG_VAL_SET':		'"float" "float"',
       \ 'DRAG_VAL_STEP':	'"float" "float"',
       \ 'DRAG_VAL_PAGE':	'"float" "float"',
+      \ 'FOCUS_SET':	        '',
       \ }
