@@ -33,8 +33,10 @@ function! edccomplete#Complete(findstart, base)
     if lastword == -1
       let ppe = searchpos('\.', 'bcn')
       let pps = searchpos('\w\+\.', 'bcn')
+      let b:sparent = ''
       if ppe != [0, 0] && pps[0] == ppe[0] && pps[1] <= ppe[1] && pps[0] == line('.')
 	let b:scontext = line[pps[1] -1 : ppe[1] - 2]
+        call edccomplete#FindParent(pps[0], pps[1])
 	return start
       endif
 
@@ -43,9 +45,11 @@ function! edccomplete#Complete(findstart, base)
       let line = getline(lnum)
 
       if line !~ '\a\+'
-	let line = getline(prevnonblank(lnum - 1))
+        let lnum = prevnonblank(lnum - 1)
+	let line = getline(lnum)
       endif
 
+      call edccomplete#FindParent(lnum, 1)
       let b:scontext = matchstr(line, '\w\+')
 
       return start
@@ -75,6 +79,8 @@ function! edccomplete#Complete(findstart, base)
 	call edccomplete#AddKeyword(res, a:base, s:partIgnoreFlags)
       elseif line =~ 'pointer_mode:\s*'
 	call edccomplete#AddKeyword(res, a:base, s:partPointerMode)
+      elseif line =~ 'editable_mode:\s*'
+	call edccomplete#AddKeyword(res, a:base, s:partEditableMode)
       endif
       if line =~ 'image:\s*".\{-}"'
 	call edccomplete#AddKeyword(res, a:base, s:imageStorageMethod)
@@ -136,6 +142,32 @@ function! edccomplete#Complete(findstart, base)
       call edccomplete#AddStatement(res, line, a:base, s:programsStatement)
       if line =~ 'image:\s*".\{-}"'
 	call edccomplete#AddKeyword(res, a:base, s:imageStorageMethod)
+      endif
+
+    elseif b:scontext == 'box' && b:sparent == 'part'
+      call edccomplete#AddStatement(res, line, a:base, s:boxStatement)
+
+    elseif b:scontext == 'items'
+      call edccomplete#AddStatement(res, line, a:base, s:boxItemsStatement)
+
+    elseif b:scontext == 'item'
+      call edccomplete#AddLabel(res, line, a:base, s:boxItemLabel)
+      if line =~ 'type:\s*'
+	call edccomplete#AddKeyword(res, a:base, s:boxItemTypes)
+      elseif line =~ 'aspect_mode:\s*"\?'
+	call edccomplete#AddKeyword(res, a:base, s:boxItemAspectMode)
+      endif
+
+    elseif b:scontext == 'box' && b:sparent == 'description'
+      call edccomplete#AddLabel(res, line, a:base, s:boxDescLabel)
+      if line =~ 'layout:\s*'
+	call edccomplete#AddKeyword(res, a:base, s:boxLayout)
+      endif
+
+    elseif b:scontext == 'table' && b:sparent == 'description'
+      call edccomplete#AddLabel(res, line, a:base, s:tableDescLabel)
+      if line =~ 'homogeneous:\s*'
+	call edccomplete#AddKeyword(res, a:base, s:tableHomogeneousMode)
       endif
 
     elseif b:scontext == 'group'
@@ -307,6 +339,26 @@ function! edccomplete#FindNamesIn(res, base, str)
   endfor
 endfunction
 
+function! edccomplete#FindParent(lnum, cnum)
+  call setpos('.', [0, a:lnum, a:cnum, 0])
+  let ppe = searchpos('\.', 'bcn')
+  let pps = searchpos('\w\+\.', 'bcn')
+  if ppe != [0, 0] && pps[0] == ppe[0] && pps[1] <= ppe[1] && pps[0] == line('.')
+    let b:sparent = line[pps[1] -1 : ppe[1] - 2]
+    return
+  endif
+
+  let startpos = searchpair('{', '', '}', 'bnW')
+  let lnum = startpos
+  let line = getline(lnum)
+
+  if line !~ '\a\+'
+    let line = getline(prevnonblank(lnum - 1))
+  endif
+
+  let b:sparent = matchstr(line, '\w\+')
+endfunction
+
 " part
 let s:partLabel = {
       \ 'name': 		        '"string"',
@@ -323,6 +375,7 @@ let s:partLabel = {
       \ 'source':		        '"string"',
       \ 'image':		        '"string" "keyword"',
       \ 'font':			        '"string" "string"',
+      \ 'entry_mode':		        '"keyword"',
       \ }
 let s:partStatement = [
       \ 'dragable',
@@ -333,6 +386,7 @@ let s:partStatement = [
       \ 'color_classes',
       \ 'program',
       \ 'programs',
+      \ 'box',
       \ ]
 
 " dragable
@@ -374,6 +428,7 @@ let s:descriptionStatement = [
       \ 'color_classes',
       \ 'program',
       \ 'programs',
+      \ 'box',
       \ ]
 
 " rel
@@ -458,6 +513,42 @@ let s:programsStatement = [
       \ 'fonts',
       \ 'program',
       \ ]
+
+" box and table
+let s:boxStatement = [
+      \ 'items',
+      \ ]
+let s:boxItemsStatement = [
+      \ 'item',
+      \ ]
+let s:boxItemLabel = {
+      \ 'type':	        '"keyword"',
+      \ 'name':	        '"string"',
+      \ 'source':	'"string"   # Group name',
+      \ 'min':		'"int" "int"',
+      \ 'prefer':	'"int" "int"',
+      \ 'max':		'"int" "int"',
+      \ 'padding':      '"int" "int" "int" "int"',
+      \ 'align':	'"float" "float"',
+      \ 'weight':	'"float" "float"',
+      \ 'aspect':	'"float" "float"',
+      \ 'aspect_mode':  '"keyword"',
+      \ 'options':      '"string"',
+      \ }
+let s:boxDescLabel = {
+      \ 'layout':       '"string" ["string"]',
+      \ 'align':	'"float" "float"',
+      \ 'padding':      '"int" "int"',
+      \ }
+let s:tableItemLabel = {
+      \ 'position':	'"int" "int"',
+      \ 'span':	        '"int" "int"',
+      \ }
+let s:tableDescLabel = {
+      \ 'homogeneous':	'"keyword"',
+      \ 'align':	'"float" "float"',
+      \ 'padding':      '"int" "int"',
+      \ }
 
 " group
 let s:groupLabel = {
@@ -592,6 +683,8 @@ let s:partTypes = {
       \ 'SWALLOW':	'',
       \ 'GRADIENT':	'',
       \ 'GROUP':	'',
+      \ 'BOX':	        '',
+      \ 'TABLE':        '',
       \ }
 " part effects
 let s:partEffects = {
@@ -616,6 +709,13 @@ let s:partIgnoreFlags = {
 let s:partPointerMode = {
       \ 'AUTOGRAB':     '',
       \ 'NOGRAB':	'',
+      \ }
+" part editable_mode
+let s:partEditableMode = {
+      \ 'NONE':		'',
+      \ 'PLAIN':	'',
+      \ 'EDITABLE':	'',
+      \ 'PASSWORD':	'',
       \ }
 
 " aspect_preference types
@@ -642,3 +742,33 @@ let s:actionTypes = {
       \ 'DRAG_VAL_PAGE':	'"float" "float"',
       \ 'FOCUS_SET':	        '',
       \ }
+" box item types
+let s:boxItemTypes = {
+      \ 'GROUP':	'',
+      \ }
+" box item aspect mode
+let s:boxItemAspectMode = {
+      \ 'NONE':	        '',
+      \ 'NEITHER':	'',
+      \ 'VERTICAL':	'',
+      \ 'HORIZONTAL':	'',
+      \ 'BOTH':		'',
+      \	}
+" box layout
+let s:boxLayout = {
+      \ '"horizontal"':	        '',
+      \ '"horizontal_homogeneous"':	'',
+      \ '"horizontal_max"':	'',
+      \ '"horizontal_flow"':	'',
+      \ '"vertical"':	        '',
+      \ '"vertical_homogeneous"':	'',
+      \ '"vertical_max"':	'',
+      \ '"vertical_flow"':	'',
+      \ '"stack"':		'',
+      \	}
+" table homogeneous mode
+let s:tableHomogeneousMode = {
+      \ 'NONE':		'',
+      \ 'TABLE':	'',
+      \ 'ITEM':		'',
+      \	}
