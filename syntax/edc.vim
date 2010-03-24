@@ -18,11 +18,12 @@ syn keyword	edcBlock	text font fill origin size image contained
 syn keyword	edcBlock	programs program styles style contained
 syn keyword 	edcBlock 	gradient spectra spectrum contained
 syn keyword 	edcBlock 	color_classes color_class rel1 rel2 contained
-syn keyword 	edcBlock 	items item contained
+syn keyword 	edcBlock 	items item file params externals contained
+syn keyword 	edcBlock 	map rotation perspective script lua_script contained
 
 syn keyword	edcLabel	item name alias min max type effect contained
 syn keyword	edcLabel	mouse_events repeat_events clip_to contained
-syn keyword	edcLabel	x y confine events scale contained
+syn keyword	edcLabel	x y z confine events scale contained
 syn keyword	edcLabel	ignore_flags precise_is_inside contained
 syn keyword	edcLabel	use_alternate_font_metrics entry_mode contained
 syn keyword	edcLabel	source source2 source3 source4 contained
@@ -30,8 +31,8 @@ syn keyword	edcLabel	source5 source6 multiline pointer_mode contained
 syn keyword	edcLabel	state visible step aspect fixed middle contained
 syn keyword	edcLabel	aspect_preference elipsis image contained
 syn keyword	edcLabel	relative offset to to_x to_y contained
-syn keyword	edcLabel	border color color2 color3 font size contained
-syn keyword	edcLabel	signal action transition in contained
+syn keyword	edcLabel	border border_scale scale_hint color color2 color3 font size contained
+syn keyword	edcLabel	signal action transition in filter contained
 syn keyword	edcLabel	target after fit align contained
 syn keyword	edcLabel	text smooth inherit tag base style contained
 syn keyword	edcLabel	text_source color_class text_class contained
@@ -39,6 +40,9 @@ syn keyword	edcLabel	spectrum angle spread normal tween contained
 syn keyword	edcLabel	padding prefer weight aspect_mode contained
 syn keyword	edcLabel	options layout position span contained
 syn keyword	edcLabel	homogeneous contained
+syn keyword	edcLabel	on perspective light perspective_on contained
+syn keyword	edcLabel	backface_cull alpha center focus zplane contained
+syn keyword	edcLabel	int double string external script_only contained
 
 syn keyword	edcConstant 	COMP RAW LOSSY NONE ON_HOLD AUTOGRAB NOGRAB
 syn keyword	edcConstant 	TEXT IMAGE RECT TEXTBLOCK SWALLOW GRADIENT GROUP
@@ -157,6 +161,11 @@ unlet b:current_syntax
 syn region 	edcScript	matchgroup=edcScriptTag start="\<script\_s*{" end="}" contains=@edcEmbryo,edcScriptTag
 syn keyword     edcScriptTag    contained script
 
+syn include 	@edcLua 	syntax/lua.vim
+unlet b:current_syntax
+syn region 	edcLuaScript	matchgroup=edcLuaScriptTag start="\<lua_script\_s*{" end="}" contains=@edcLua,edcLuaScriptTag
+syn keyword     edcLuaScriptTag contained script
+
 if exists("edc_minlines")
   let b:edc_minlines = edc_minlines
 else
@@ -207,6 +216,7 @@ if version >= 508 || !exists("did_edc_syn_inits")
   HiLink edcError		Error
   HiLink edcBlock		Function
   HiLink edcScriptTag		Function
+  HiLink edcLuaScriptTag	Function
   HiLink edcPreCondit		PreCondit
   HiLink edcConstant		Constant
   HiLink edcCommentString	edcString
